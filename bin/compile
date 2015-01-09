@@ -103,6 +103,27 @@ bpwatch start pre_compile
   source $BIN_DIR/steps/hooks/pre_compile
 bpwatch stop pre_compile
 
+if [ ! -d $CACHE_DIR/swig ]; then
+  cd $BUILD_DIR
+  echo "-----> Fetching and installing SWIG 2"
+  curl -O https://s3.amazonaws.com/guybowden/swig.tar.gz >/dev/null 2>&1
+  echo "-----> Installing ..."
+  tar xzvf swig.tar.gz >/dev/null 2>&1
+  mv swig $CACHE_DIR/swig
+  rm swig.tar.gz
+  echo "SWIG installed"
+fi
+
+mkdir -p .poseidon
+cp -R $CACHE_DIR/swig .poseidon
+
+echo "updating path..."
+PATH=$PATH:$BUILD_DIR/.poseidon/swig/bin/
+export PATH
+echo $PATH
+echo "setting SWIG_LIB environment var"
+export SWIG_LIB=$BUILD_DIR/.poseidon/swig/share/swig/2.0.5/
+
 # If no requirements given, assume `setup.py develop`.
 if [ ! -f requirements.txt ]; then
   echo "-e ." > requirements.txt
